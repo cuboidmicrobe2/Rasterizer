@@ -51,29 +51,28 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
     return true;
 }
 
-bool CreateInputLayout(ID3D11Device* device, ID3D11InputLayout*& inputLayout, const std::string vShaderByteCode) {
-    D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+bool CreateInputLayout(ID3D11Device* device, ID3D11InputLayout*& inputLayout, const std::string& vShaderByteCode) {
+    D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
-    HRESULT hr = device->CreateInputLayout(inputDesc, 2, vShaderByteCode.c_str(), vShaderByteCode.length(), &inputLayout);
+    HRESULT hr = device->CreateInputLayout(inputDesc, sizeof(inputDesc) / sizeof(*inputDesc), vShaderByteCode.c_str(), vShaderByteCode.length(), &inputLayout);
 
     return !FAILED(hr);
 }
 
 bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer) {
-    SimpleVertex vertices[6] =
+    SimpleVertex vertices[4] =
     {
-        // Triangle 1
-        { {-0.5f,  0.5f, 0.0f}, {0, 0, 1} },
-        { {-0.5f, -0.5f, 0.0f}, {1, 0, 0} },
-        { { 0.5f, -0.5f, 0.0f}, {0, 1, 0} },
+        // Triangle
+        {{-0.5f, 0.5f, 0.0f}, {0, 0, -1}, {0, 1}},
+        {{0.5f, 0.5f, 0.0f}, {0, 0, -1}, {0, 1}},
+        {{-0.5f, -0.5f, 0.0f}, {0, 0, -1}, {0, 1}},
 
-        // Triangle 2
-        { {-0.5f,  0.5f, 0.0f}, {0, 0, 1} },
-        { { 0.5f,  0.5f, 0.0f}, {1, 0, 0} },
-        { { 0.5f, -0.5f, 0.0f}, {0, 1, 0} }
+        // 4th vertex
+        {{0.5f, -0.5f, 0.0f}, {0, 0, -1}, {0, 1}},
     };
 
     D3D11_BUFFER_DESC bufferDesc;
