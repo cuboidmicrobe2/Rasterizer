@@ -1,12 +1,16 @@
-#include "WindowHelper.h"
+#include "WindowSetup.h"
 
 #include <iostream>
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+	// Finds what code to run for the given message
 	switch (message) {
 
 		// This message is read when the window is closed
 	case WM_DESTROY: {
+
+		// Closes down the application entirely
 		PostQuitMessage(0);
 		return 0;
 	}
