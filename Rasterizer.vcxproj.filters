@@ -18,10 +18,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowHelper.cpp">
+    <ClCompile Include="WindowSetup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D3D11Helper.cpp">
+    <ClCompile Include="D3D11Setup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsSetup.cpp">
@@ -29,10 +29,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WindowHelper.h">
+    <ClInclude Include="WindowSetup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D3D11Helper.h">
+    <ClInclude Include="D3D11Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsSetup.h">
