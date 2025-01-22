@@ -1,6 +1,15 @@
 Texture2D shaderTexture : register(t0);
 SamplerState samplerState : register(s0);
 
+cbuffer ConstBuffer : register(b0)
+{
+    float4 lightPosition;
+    float4 lightColor;
+    float4 cameraPosition;
+    float ambientLightIntensity;
+    float shininess;
+}
+
 struct PixelShaderInput
 {
     float4 position : SV_POSITION;
@@ -11,5 +20,14 @@ struct PixelShaderInput
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    return shaderTexture.Sample(samplerState, input.uv);
+    
+    
+    float3 lightDirection = normalize(lightPosition.xyz - input.worldPosition.xyz);
+    float3 normal = normalize(input.normal);
+    float diffuseIntensity = max(dot(normal, lightDirection), 0.0);
+    
+    float4 ambientComponent = lightColor * ambientLightIntensity;
+    float4 diffuseComponent = lightColor * diffuseIntensity;
+
+    return (diffuseComponent) * shaderTexture.Sample(samplerState, input.uv);
 }

@@ -119,7 +119,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	DX::XMStoreFloat4x4(&viewProjFloat, viewProjMatrix);
 
 	// Making sure the data is next to each other
-	DX::XMFLOAT4X4 matrixArray[2] = {worldFloat, viewProjFloat};
+	DX::XMFLOAT4X4 matrixArray[2] = { worldFloat, viewProjFloat };
 
 	// Constant Buffer for Vertex Shader
 	D3D11_BUFFER_DESC vsConstBuffer;
@@ -143,7 +143,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
+	// Constanst buffer for Pixel Shader
+	struct psStruct {
+		DX::XMFLOAT4 lightPosition = { 0.0f, 0.0f, -5.0f, 1.0f };
+		DX::XMFLOAT4 lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		DX::XMFLOAT4 cameraPosition = { 0.0f, 0.0f, -3.0f, 0.0f };
+		float ambientLightIntensity = 0.3f;
+		float shininess = 1000.0f;
+		char padding[8];
+	};
+
+	psStruct psVars;
+
+	D3D11_BUFFER_DESC psConstBuffer;
+	psConstBuffer.ByteWidth = sizeof(psStruct);
+	psConstBuffer.Usage = D3D11_USAGE_IMMUTABLE;
+	psConstBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	psConstBuffer.CPUAccessFlags = 0;
+	psConstBuffer.MiscFlags = 0;
+	psConstBuffer.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA psSubResource;
+	psSubResource.pSysMem = &psVars;
+	psSubResource.SysMemPitch = 0;
+	psSubResource.SysMemSlicePitch = 0;
+
+	ID3D11Buffer* psIBuffer;
+	hr = device->CreateBuffer(&psConstBuffer, &psSubResource, &psIBuffer);
+	if (FAILED(hr)) {
+		std::cerr << "Creation of pixel buffer failed!" << std::endl;
+	}
+
 	immediateContext->VSSetConstantBuffers(0, 1, &vsIBuffer);
+	immediateContext->PSSetConstantBuffers(0, 1, &psIBuffer);
 
 	auto prevTime = std::chrono::high_resolution_clock::now();
 
@@ -176,7 +208,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		immediateContext->Unmap(vsIBuffer, 0);
 
 		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, srv, samplerState);
-		
+
 		swapChain->Present(0, 0);
 	}
 
