@@ -1,3 +1,6 @@
+Texture2D shaderTexture : register(t0);
+SamplerState samplerState : register(s0);
+
 struct PixelShaderInput
 {
     float4 position : SV_POSITION;
@@ -8,5 +11,5 @@ struct PixelShaderInput
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    return float4(abs(input.normal), 1.0f);
+    return shaderTexture.Sample(samplerState, input.uv);
 }

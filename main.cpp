@@ -4,13 +4,16 @@
 #include <DirectXMath.h>
 #include <chrono>
 
-#include "WindowSetup.h"
-#include "D3D11Setup.h"
+#include "WindowHelper.h"
+#include "D3D11Helper.h"
 #include "GraphicsSetup.h"
 
 namespace DX = DirectX;
 
-void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout, ID3D11Buffer* vertexBuffer) {
+void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv,
+	ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport, ID3D11VertexShader* vShader,
+	ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout, ID3D11Buffer* vertexBuffer,
+	ID3D11ShaderResourceView* srv, ID3D11SamplerState* samplerState) {
 	// BG
 	float clearColor[4] = { 0, 0, 0, 0 };
 	immediateContext->ClearRenderTargetView(rtv, clearColor);
@@ -24,6 +27,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->PSSetShader(pShader, nullptr, 0);
 	immediateContext->RSSetViewports(1, &viewport);
+	immediateContext->PSSetShaderResources(0, 1, &srv);
+	immediateContext->PSSetSamplers(0, 1, &samplerState);
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 
 	// Number of vertices to draw
@@ -72,6 +77,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ID3D11PixelShader* pShader;
 	ID3D11InputLayout* inputLayout;
 	ID3D11Buffer* vertexBuffer;
+	unsigned char* imageData;
+	ID3D11Texture2D* texture;
+	ID3D11ShaderResourceView* srv;
+	ID3D11SamplerState* samplerState;
 
 	// D3D11 Setup
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport)) {
@@ -80,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 
 	// Pipeline Setup
-	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout)) {
+	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, texture, srv, samplerState, imageData)) {
 		std::cerr << "Failed to seutp pipeline!" << std::endl;
 		return -1;
 	}
@@ -166,7 +175,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		immediateContext->Unmap(vsIBuffer, 0);
 
-		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer);
+		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, srv, samplerState);
 		
 		swapChain->Present(0, 0);
 	}
@@ -182,6 +191,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	pShader->Release();
 	inputLayout->Release();
 	vertexBuffer->Release();
+	srv->Release();
+	samplerState->Release();
 
 	return 0;
 }
