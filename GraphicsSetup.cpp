@@ -70,13 +70,17 @@ bool CreateInputLayout(ID3D11Device* device, ID3D11InputLayout*& inputLayout, co
 bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer) {
 	SimpleVertex vertices[4] =
 	{
-		// Triangle
+		// x1
 		{{-0.5f, 0.5f, 0.0f}, {0, 0, -1}, {0, 0}},
 		{{0.5f, 0.5f, 0.0f}, {0, 0, -1}, {1, 0}},
 		{{-0.5f, -0.5f, 0.0f}, {0, 0, -1}, {0, 1}},
-
-		// 4th vertex
 		{{0.5f, -0.5f, 0.0f}, {0, 0, -1}, {1, 1}},
+
+		//// x2
+		//{{-1.0f, 1.0f, 0.0f}, {0, 0, -1}, {0, 0}},
+		//{{1.0f, 1.0f, 0.0f}, {0, 0, -1}, {1, 0}},
+		//{{-1.0f, -1.0f, 0.0f}, {0, 0, -1}, {0, 1}},
+		//{{1.0f, -1.0f, 0.0f}, {0, 0, -1}, {1, 1}},
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -97,9 +101,9 @@ bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer) {
 }
 
 bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D11ShaderResourceView*& srv, unsigned char*& imageData) {
-	int height, width, channels;
+	int width, height, channels;
 
-	imageData = stbi_load("testImage.jpg", &width, &height, &channels, 0);
+	imageData = stbi_load("image.jpg", &width, &height, &channels, 0);
 	channels = 4;
 
 	std::vector<unsigned char> textureData;
