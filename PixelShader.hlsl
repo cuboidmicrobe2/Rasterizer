@@ -19,15 +19,18 @@ struct PixelShaderInput
 };
 
 float4 main(PixelShaderInput input) : SV_TARGET
-{
-    
-    
+{    
+    float3 normalizedNormal = normalize(input.normal);
     float3 lightDirection = normalize(lightPosition.xyz - input.worldPosition.xyz);
-    float3 normal = normalize(input.normal);
-    float diffuseIntensity = max(dot(normal, lightDirection), 0.0);
+    float diffuseIntensity = max(dot(normalizedNormal, lightDirection), 0.0f);
+    
+    float3 reflection = reflect(-lightDirection, normalizedNormal);
+    float3 vectorToCamera = normalize(cameraPosition - input.worldPosition);
+    float specularIntensity = pow(max(dot(reflection, vectorToCamera), 0.0f), shininess);
     
     float4 ambientComponent = lightColor * ambientLightIntensity;
     float4 diffuseComponent = lightColor * diffuseIntensity;
+    float4 specularComponent = lightColor * specularIntensity;
 
-    return (diffuseComponent) * shaderTexture.Sample(samplerState, input.uv);
+    return (ambientComponent + diffuseComponent + specularComponent) * shaderTexture.Sample(samplerState, input.uv);
 }
