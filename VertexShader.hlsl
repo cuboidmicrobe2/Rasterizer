@@ -15,7 +15,7 @@ struct VertexShaderOutput
 {
     float4 position : SV_POSITION;
     float4 worldPosition : WORLD_POSITION;
-    float3 normal : NORMAL;
+    float4 normal : NORMAL;
     float2 uv : UV;
 };
 
