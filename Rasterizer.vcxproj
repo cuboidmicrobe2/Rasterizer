@@ -139,12 +139,14 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConstantBuffersSetup.cpp" />
     <ClCompile Include="D3D11Helper.cpp" />
     <ClCompile Include="GraphicsSetup.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConstantBuffersSetup.h" />
     <ClInclude Include="D3D11Helper.h" />
     <ClInclude Include="GraphicsSetup.h" />
     <ClInclude Include="stb_image.h" />
