@@ -46,13 +46,16 @@ static void CreateMatrices(const UINT WIDTH, const UINT HEIGHT, const float rota
 // Function to create vertex shader constant buffer
 static bool CreateVSConstBuffer(ID3D11Device* device, DX::XMFLOAT4X4 matrixArray[2], ID3D11Buffer*& buffer) {
 	D3D11_BUFFER_DESC vsConstBuffer = {
-		.ByteWidth = sizeof(DX::XMFLOAT4X4[2]),
-		.Usage = D3D11_USAGE_DYNAMIC,
-		.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-		.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+		vsConstBuffer.ByteWidth = sizeof(DX::XMFLOAT4X4[2]),
+		vsConstBuffer.Usage = D3D11_USAGE_DYNAMIC,
+		vsConstBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+		vsConstBuffer.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
 	};
 
-	D3D11_SUBRESOURCE_DATA vsSubResource = { .pSysMem = matrixArray };
+	D3D11_SUBRESOURCE_DATA vsSubResource;
+	vsSubResource.pSysMem = matrixArray;
+	vsSubResource.SysMemPitch = 0;
+	vsSubResource.SysMemSlicePitch = 0;
 
 	HRESULT hr = device->CreateBuffer(&vsConstBuffer, &vsSubResource, &buffer);
 	return !FAILED(hr);
@@ -70,12 +73,15 @@ static bool CreatePSConstBuffer(ID3D11Device* device, ID3D11Buffer*& buffer) {
 	} psVars;
 
 	D3D11_BUFFER_DESC psConstBuffer = {
-		.ByteWidth = sizeof(psStruct),
-		.Usage = D3D11_USAGE_IMMUTABLE,
-		.BindFlags = D3D11_BIND_CONSTANT_BUFFER
+		psConstBuffer.ByteWidth = sizeof(psStruct),
+		psConstBuffer.Usage = D3D11_USAGE_IMMUTABLE,
+		psConstBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER
 	};
 
-	D3D11_SUBRESOURCE_DATA psSubResource = { .pSysMem = &psVars };
+	D3D11_SUBRESOURCE_DATA psSubResource;
+	psSubResource.pSysMem = &psVars;
+	psSubResource.SysMemPitch = 0;
+	psSubResource.SysMemSlicePitch = 0;
 
 	HRESULT hr = device->CreateBuffer(&psConstBuffer, &psSubResource, &buffer);
 	if (FAILED(hr)) {

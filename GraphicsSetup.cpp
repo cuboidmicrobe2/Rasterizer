@@ -96,19 +96,19 @@ static bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer
 
 	// Define buffer description
 	D3D11_BUFFER_DESC bufferDesc{
-		.ByteWidth = sizeof(vertices),
-		.Usage = D3D11_USAGE_IMMUTABLE,
-		.BindFlags = D3D11_BIND_VERTEX_BUFFER,
-		.CPUAccessFlags = 0,
-		.MiscFlags = 0,
-		.StructureByteStride = 0
+		bufferDesc.ByteWidth = sizeof(vertices),
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE,
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER,
+		bufferDesc.CPUAccessFlags = 0,
+		bufferDesc.MiscFlags = 0,
+		bufferDesc.StructureByteStride = 0
 	};
 
 	// Define subresource data
 	D3D11_SUBRESOURCE_DATA data{
-		.pSysMem = vertices,
-		.SysMemPitch = 0,
-		.SysMemSlicePitch = 0
+		data.pSysMem = vertices,
+		data.SysMemPitch = 0,
+		data.SysMemSlicePitch = 0
 	};
 
 	// Create vertex buffer
@@ -142,23 +142,23 @@ static bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D1
 
 	// Define texture description
 	D3D11_TEXTURE2D_DESC textureDesc{
-		.Width = static_cast<UINT>(width),
-		.Height = static_cast<UINT>(height),
-		.MipLevels = 1,
-		.ArraySize = 1,
-		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.SampleDesc = DXGI_SAMPLE_DESC{ 1, 0 },
-		.Usage = D3D11_USAGE_IMMUTABLE,
-		.BindFlags = D3D11_BIND_SHADER_RESOURCE,
-		.CPUAccessFlags = 0,
-		.MiscFlags = 0
+		textureDesc.Width = static_cast<UINT>(width),
+		textureDesc.Height = static_cast<UINT>(height),
+		textureDesc.MipLevels = 1,
+		textureDesc.ArraySize = 1,
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		textureDesc.SampleDesc = DXGI_SAMPLE_DESC{ 1, 0 },
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE,
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE,
+		textureDesc.CPUAccessFlags = 0,
+		textureDesc.MiscFlags = 0
 	};
 
 	// Define subresource data
 	D3D11_SUBRESOURCE_DATA textureSubData{
-		.pSysMem = &textureData[0],
-		.SysMemPitch = static_cast<UINT>(width * channels),
-		.SysMemSlicePitch = 0
+		textureSubData.pSysMem = &textureData[0],
+		textureSubData.SysMemPitch = static_cast<UINT>(width * channels),
+		textureSubData.SysMemSlicePitch = 0
 	};
 
 	// Create texture
@@ -176,17 +176,19 @@ static bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D1
 static bool CreateSamplerState(ID3D11Device* device, ID3D11SamplerState*& samplerState)
 {
 	// Define sampler description
-	D3D11_SAMPLER_DESC samplerDesc{
-		.Filter = D3D11_FILTER_ANISOTROPIC,
-		.AddressU = D3D11_TEXTURE_ADDRESS_WRAP,
-		.AddressV = D3D11_TEXTURE_ADDRESS_WRAP,
-		.AddressW = D3D11_TEXTURE_ADDRESS_WRAP,
-		.MipLODBias = 0,
-		.MaxAnisotropy = 16,
-		.BorderColor {0, 0, 0, 0},
-		.MinLOD = 0,
-		.MaxLOD = D3D11_FLOAT32_MAX
-	};
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = 16;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
 
 	// Create sampler state
 	HRESULT hr = device->CreateSamplerState(&samplerDesc, &samplerState);

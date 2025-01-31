@@ -25,11 +25,10 @@ bool SetupWindow(HINSTANCE instance, UINT width, UINT height, int nCmdShow, HWND
 	const wchar_t CLASS_NAME[] = L"WINDOW CLASS";
 
 	// Define window class properties
-	WNDCLASS wc = {
-		.lpfnWndProc = WindowProc,
-		.hInstance = instance,
-		.lpszClassName = CLASS_NAME
-	};
+	WNDCLASS wc{};
+	wc.lpfnWndProc = WindowProc;
+	wc.hInstance = instance;
+	wc.lpszClassName = CLASS_NAME;
 
 	// Register the window class
 	if (!RegisterClass(&wc)) {

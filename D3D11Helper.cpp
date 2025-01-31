@@ -3,30 +3,22 @@
 // Function to create D3D11 device, device context, and swap chain
 static bool CreateInterfaces(UINT width, UINT height, HWND window, ID3D11Device*& device, ID3D11DeviceContext*& immediateContext, IDXGISwapChain*& swapChain) {
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{
-		.BufferDesc = {
-			.Width = width,
-			.Height = height,
-			.RefreshRate = { 0, 1 },
-			.Format = DXGI_FORMAT_B8G8R8A8_UNORM,
-			.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-			.Scaling = DXGI_MODE_SCALING_UNSPECIFIED,
-		},
-		.SampleDesc = {
-			.Count = 1,
-			.Quality = 0,
-		},
-		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		.BufferCount = 1,
-		.OutputWindow = window,
-		.Windowed = true,
-		.SwapEffect = DXGI_SWAP_EFFECT_DISCARD,
-		.Flags = 0
+		swapChainDesc.BufferDesc.Width = width,
+		swapChainDesc.BufferDesc.Height = height,
+		swapChainDesc.BufferDesc.RefreshRate = { 0, 1 },
+		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM,
+		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED,
+		swapChainDesc.SampleDesc = { 1, 0 },
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		swapChainDesc.BufferCount = 1,
+		swapChainDesc.OutputWindow = window,
+		swapChainDesc.Windowed = true,
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD,
+		swapChainDesc.Flags = 0
 	};
 
 	UINT flags = 0;
-	/*if (_DEBUG) {
-		flags = D3D11_CREATE_DEVICE_DEBUG;
-	}*/
 
 	D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 
@@ -55,16 +47,16 @@ static bool CreateRenderTargetView(ID3D11Device* device, IDXGISwapChain* swapCha
 // Function to create depth stencil texture and view
 static bool CreateDepthStencil(ID3D11Device* device, UINT width, UINT height, ID3D11Texture2D*& dsTexture, ID3D11DepthStencilView*& dsView) {
 	D3D11_TEXTURE2D_DESC textureDesc{
-		.Width = width,
-		.Height = height,
-		.MipLevels = 1,
-		.ArraySize = 1,
-		.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
-		.SampleDesc = { 1, 0 },
-		.Usage = D3D11_USAGE_DEFAULT,
-		.BindFlags = D3D11_BIND_DEPTH_STENCIL,
-		.CPUAccessFlags = 0,
-		.MiscFlags = 0
+		textureDesc.Width = width,
+		textureDesc.Height = height,
+		textureDesc.MipLevels = 1,
+		textureDesc.ArraySize = 1,
+		textureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+		textureDesc.SampleDesc = { 1, 0 },
+		textureDesc.Usage = D3D11_USAGE_DEFAULT,
+		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL,
+		textureDesc.CPUAccessFlags = 0,
+		textureDesc.MiscFlags = 0
 	};
 
 	// Create depth stencil texture
