@@ -36,7 +36,7 @@ static bool readFile(const std::string& filePath, std::string& fileData) {
 }
 
 // Function to load vertex and pixel shaders
-static bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, std::string& vShaderByteCode) {
+static bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, std::string& vsByteCode) {
 	std::string shaderData;
 
 	// Load Vertex Shader
@@ -50,8 +50,7 @@ static bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D
 		return false;
 	}
 
-
-	vShaderByteCode = shaderData; // Store bytecode for input layout creation
+	vsByteCode = shaderData; // Store bytecode for input layout creation
 	shaderData.clear();
 
 	// Load Pixel Shader
@@ -79,7 +78,6 @@ static bool CreateInputLayout(ID3D11Device* device, ID3D11InputLayout*& inputLay
 
 	// Create input layout
 	HRESULT hr = device->CreateInputLayout(inputDesc, sizeof(inputDesc) / sizeof(*inputDesc), vShaderByteCode.c_str(), vShaderByteCode.length(), &inputLayout);
-
 	return !FAILED(hr);
 }
 
@@ -95,7 +93,7 @@ static bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer
 	};
 
 	// Define buffer description
-	D3D11_BUFFER_DESC bufferDesc{
+	D3D11_BUFFER_DESC bufferDesc = {
 		bufferDesc.ByteWidth = sizeof(vertices),
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE,
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER,
@@ -105,7 +103,7 @@ static bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer
 	};
 
 	// Define subresource data
-	D3D11_SUBRESOURCE_DATA data{
+	D3D11_SUBRESOURCE_DATA data = {
 		data.pSysMem = vertices,
 		data.SysMemPitch = 0,
 		data.SysMemSlicePitch = 0
@@ -140,8 +138,11 @@ static bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D1
 		}
 	}
 
+	stbi_image_free(imageData);
+	imageData = nullptr;
+
 	// Define texture description
-	D3D11_TEXTURE2D_DESC textureDesc{
+	D3D11_TEXTURE2D_DESC textureDesc = {
 		textureDesc.Width = static_cast<UINT>(width),
 		textureDesc.Height = static_cast<UINT>(height),
 		textureDesc.MipLevels = 1,
@@ -155,7 +156,7 @@ static bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D1
 	};
 
 	// Define subresource data
-	D3D11_SUBRESOURCE_DATA textureSubData{
+	D3D11_SUBRESOURCE_DATA textureSubData = {
 		textureSubData.pSysMem = &textureData[0],
 		textureSubData.SysMemPitch = static_cast<UINT>(width * channels),
 		textureSubData.SysMemSlicePitch = 0
@@ -176,19 +177,22 @@ static bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D1
 static bool CreateSamplerState(ID3D11Device* device, ID3D11SamplerState*& samplerState)
 {
 	// Define sampler description
-	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0;
-	samplerDesc.MaxAnisotropy = 16;
-	samplerDesc.MinLOD = 0.0f;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
+	D3D11_SAMPLER_DESC samplerDesc = {
+		samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC,
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP,
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP,
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP,
+		samplerDesc.MipLODBias = 0,
+		samplerDesc.MaxAnisotropy = 16,
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS,
+		samplerDesc.BorderColor[0] = 0,
+		samplerDesc.BorderColor[1] = 0,
+		samplerDesc.BorderColor[2] = 0,
+		samplerDesc.BorderColor[3] = 0,
+		samplerDesc.MinLOD = 0.0f,
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX
+	};
+
 
 	// Create sampler state
 	HRESULT hr = device->CreateSamplerState(&samplerDesc, &samplerState);
@@ -200,16 +204,16 @@ bool SetupPipeline(ID3D11Device* device, ID3D11Buffer*& vertexBuffer, ID3D11Vert
 	ID3D11PixelShader*& pShader, ID3D11InputLayout*& inputLayout, ID3D11Texture2D*& texture,
 	ID3D11ShaderResourceView*& srv, ID3D11SamplerState*& samplerState, unsigned char*& imageData)
 {
-	std::string vShaderByteCode;
+	std::string vsByteCode;
 
 	// Load shaders
-	if (!LoadShaders(device, vShader, pShader, vShaderByteCode)) {
+	if (!LoadShaders(device, vShader, pShader, vsByteCode)) {
 		std::cerr << "Error loading shaders!" << std::endl;
 		return false;
 	}
 
 	// Create input layout
-	if (!CreateInputLayout(device, inputLayout, vShaderByteCode)) {
+	if (!CreateInputLayout(device, inputLayout, vsByteCode)) {
 		std::cerr << "Error creating input layout!" << std::endl;
 		return false;
 	}

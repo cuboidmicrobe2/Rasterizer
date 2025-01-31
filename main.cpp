@@ -74,21 +74,30 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Interface variables
 	ID3D11Device* device;
 	ID3D11DeviceContext* immediateContext;
+
 	IDXGISwapChain* swapChain;
 	ID3D11RenderTargetView* rtv;
+
 	ID3D11Texture2D* dsTexture;
 	ID3D11DepthStencilView* dsView;
-	D3D11_VIEWPORT viewport;
+
 	ID3D11VertexShader* vShader;
-	ID3D11Buffer* vBuffer;
 	ID3D11PixelShader* pShader;
-	ID3D11Buffer* pBuffer;
-	ID3D11InputLayout* inputLayout;
+
 	ID3D11Buffer* vertexBuffer;
-	unsigned char* imageData;
+
+	ID3D11Buffer* vConstBuffer;
+	ID3D11Buffer* pConstBuffer;
+
+	ID3D11InputLayout* inputLayout;
+
 	ID3D11Texture2D* texture;
 	ID3D11ShaderResourceView* srv;
 	ID3D11SamplerState* samplerState;
+
+	D3D11_VIEWPORT viewport;
+
+	unsigned char* imageData;
 
 	// D3D11 Setup
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport)) {
@@ -105,16 +114,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Setup constant buffers for vertex and pixel shader
 	float rotation = 300.0f;
 	DX::XMFLOAT4X4 matrixArray[2]{};
-	if (!SetupConstantBuffers(device, WIDTH, HEIGHT, rotation, vBuffer, pBuffer, matrixArray)) {
-		std::cerr << "Failed to setup constant buffer!" << std::endl;
+	if (!SetupConstantBuffers(device, WIDTH, HEIGHT, rotation, vConstBuffer, pConstBuffer, matrixArray)) {
+		std::cerr << "Failed to setup constant buffers!" << std::endl;
 		return -1;
 	}
-	immediateContext->VSSetConstantBuffers(0, 1, &vBuffer);
-	immediateContext->PSSetConstantBuffers(0, 1, &pBuffer);
+	immediateContext->VSSetConstantBuffers(0, 1, &vConstBuffer);
+	immediateContext->PSSetConstantBuffers(0, 1, &pConstBuffer);
 
 	// Window Loop
 	MSG msg = {};
-
 	while (msg.message != WM_QUIT) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
@@ -126,10 +134,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-		immediateContext->Map(vBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		immediateContext->Map(vConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		DX::XMStoreFloat4x4(&matrixArray[0], CreateWorldMatrix(rotation));
 		memcpy(mappedResource.pData, matrixArray, sizeof(matrixArray));
-		immediateContext->Unmap(vBuffer, 0);
+		immediateContext->Unmap(vConstBuffer, 0);
 
 		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, srv, samplerState);
 		swapChain->Present(0, 0);
@@ -141,8 +149,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	texture->Release();
 	vertexBuffer->Release();
 	inputLayout->Release();
-	pBuffer->Release();
-	vBuffer->Release();
+	pConstBuffer->Release();
+	vConstBuffer->Release();
 	pShader->Release();
 	vShader->Release();
 	dsView->Release();
@@ -151,8 +159,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	swapChain->Release();
 	immediateContext->Release();
 	device->Release();
-
-	delete[] imageData;
 
 	return 0;
 }

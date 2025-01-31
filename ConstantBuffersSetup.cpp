@@ -45,50 +45,48 @@ static void CreateMatrices(const UINT WIDTH, const UINT HEIGHT, const float rota
 
 // Function to create vertex shader constant buffer
 static bool CreateVSConstBuffer(ID3D11Device* device, DX::XMFLOAT4X4 matrixArray[2], ID3D11Buffer*& buffer) {
-	D3D11_BUFFER_DESC vsConstBuffer = {
-		vsConstBuffer.ByteWidth = sizeof(DX::XMFLOAT4X4[2]),
-		vsConstBuffer.Usage = D3D11_USAGE_DYNAMIC,
-		vsConstBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-		vsConstBuffer.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
+	D3D11_BUFFER_DESC bufferDesc = {
+		bufferDesc.ByteWidth = sizeof(DX::XMFLOAT4X4[2]),
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC,
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE
 	};
 
-	D3D11_SUBRESOURCE_DATA vsSubResource;
-	vsSubResource.pSysMem = matrixArray;
-	vsSubResource.SysMemPitch = 0;
-	vsSubResource.SysMemSlicePitch = 0;
+	D3D11_SUBRESOURCE_DATA data = {
+		data.pSysMem = matrixArray,
+		data.SysMemPitch = 0,
+		data.SysMemSlicePitch = 0
+	};
 
-	HRESULT hr = device->CreateBuffer(&vsConstBuffer, &vsSubResource, &buffer);
+	HRESULT hr = device->CreateBuffer(&bufferDesc, &data, &buffer);
 	return !FAILED(hr);
 }
 
 // Function to create pixel shader constant buffer
 static bool CreatePSConstBuffer(ID3D11Device* device, ID3D11Buffer*& buffer) {
-	struct psStruct {
+	struct constants {
 		DX::XMFLOAT4 lightPosition = { 0.0f, 0.5f, -5.0f, 1.0f };
 		DX::XMFLOAT4 lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		DX::XMFLOAT4 cameraPosition = { 0.0f, 0.0f, -3.0f, 1.0f };
 		float ambientLightIntensity = 0.01f;
-		float shininess = 50.0f;
+		float shininess = 200.0f;
 		char padding[8];
-	} psVars;
+	} constants;
 
-	D3D11_BUFFER_DESC psConstBuffer = {
-		psConstBuffer.ByteWidth = sizeof(psStruct),
-		psConstBuffer.Usage = D3D11_USAGE_IMMUTABLE,
-		psConstBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER
+	D3D11_BUFFER_DESC bufferDesc = {
+		bufferDesc.ByteWidth = sizeof(constants),
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE,
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER
 	};
 
-	D3D11_SUBRESOURCE_DATA psSubResource;
-	psSubResource.pSysMem = &psVars;
-	psSubResource.SysMemPitch = 0;
-	psSubResource.SysMemSlicePitch = 0;
+	D3D11_SUBRESOURCE_DATA data = {
+		data.pSysMem = &constants,
+		data.SysMemPitch = 0,
+		data.SysMemSlicePitch = 0
+	};
 
-	HRESULT hr = device->CreateBuffer(&psConstBuffer, &psSubResource, &buffer);
-	if (FAILED(hr)) {
-		std::cerr << "Creation of pixel buffer failed!" << std::endl;
-		return false;
-	}
-	return true;
+	HRESULT hr = device->CreateBuffer(&bufferDesc, &data, &buffer);
+	return !FAILED(hr);
 }
 
 // Function to set up constant buffers for vertex and pixel shaders

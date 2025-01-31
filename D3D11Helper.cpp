@@ -2,7 +2,7 @@
 
 // Function to create D3D11 device, device context, and swap chain
 static bool CreateInterfaces(UINT width, UINT height, HWND window, ID3D11Device*& device, ID3D11DeviceContext*& immediateContext, IDXGISwapChain*& swapChain) {
-	DXGI_SWAP_CHAIN_DESC swapChainDesc{
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {
 		swapChainDesc.BufferDesc.Width = width,
 		swapChainDesc.BufferDesc.Height = height,
 		swapChainDesc.BufferDesc.RefreshRate = { 0, 1 },
@@ -24,7 +24,6 @@ static bool CreateInterfaces(UINT width, UINT height, HWND window, ID3D11Device*
 
 	// Create device and swap chain
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 1, D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &immediateContext);
-
 	return !FAILED(hr);
 }
 
@@ -46,7 +45,7 @@ static bool CreateRenderTargetView(ID3D11Device* device, IDXGISwapChain* swapCha
 
 // Function to create depth stencil texture and view
 static bool CreateDepthStencil(ID3D11Device* device, UINT width, UINT height, ID3D11Texture2D*& dsTexture, ID3D11DepthStencilView*& dsView) {
-	D3D11_TEXTURE2D_DESC textureDesc{
+	D3D11_TEXTURE2D_DESC textureDesc = {
 		textureDesc.Width = width,
 		textureDesc.Height = height,
 		textureDesc.MipLevels = 1,
@@ -97,7 +96,7 @@ bool SetupD3D11(UINT width, UINT height, HWND window, ID3D11Device*& device, ID3
 
 	// Create depth stencil texture and view
 	if (!CreateDepthStencil(device, width, height, dsTexture, dsView)) {
-		std::cerr << "Failed creating depth stencil view!" << std::endl;
+		std::cerr << "Error creating depth stencil view!" << std::endl;
 		return false;
 	}
 
